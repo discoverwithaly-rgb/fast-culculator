@@ -64,11 +64,13 @@ function aistudioMediaPlugin(): Plugin {
 }
 // LINT.ThenChange(//depot/google3/java/com/google/alkali/boq/makersuite/applet_dev_service/templates/initializers/react_theme/vite.config.ts:aistudio_media_plugin)
 
-const getBase = () => {
+const getBase = (command: string) => {
+  if (command === 'serve') {
+    return '/';
+  }
   if (process.env.BASE_PATH) {
     const p = process.env.BASE_PATH.trim();
-    if (!p) return './';
-    return p.endsWith('/') ? p : `${p}/`;
+    if (p) return p.endsWith('/') ? p : `${p}/`;
   }
   if (process.env.GITHUB_REPOSITORY) {
     const repo = process.env.GITHUB_REPOSITORY.split('/')[1];
@@ -79,12 +81,13 @@ const getBase = () => {
       return `/${repo}/`;
     }
   }
-  return './';
+  // Default for GitHub Pages deployment of this repository
+  return '/fast-culculator/';
 };
 
-export default defineConfig(() => {
+export default defineConfig(({ command }) => {
   return {
-    base: getBase(),
+    base: getBase(command),
     plugins: [react(), tailwindcss(), aistudioMediaPlugin()],
     resolve: {
       alias: {

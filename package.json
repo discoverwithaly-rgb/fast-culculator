@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
-    "build": "vite build",
+    "build": "vite build && cp dist/index.html dist/404.html",
     "predeploy": "npm run build && touch dist/.nojekyll",
     "deploy": "gh-pages -d dist -t true",
     "preview": "vite preview",
