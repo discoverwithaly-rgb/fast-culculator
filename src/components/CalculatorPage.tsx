@@ -1,30 +1,44 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { CalculatorSEOData } from '../types';
 import { AdSensePlaceholder } from './AdSensePlaceholder';
 import { SEOSection } from './SEOSection';
 import { ChevronRight, Home, Sparkles } from 'lucide-react';
 
-// Import all 15 calculator components
-import { PercentageCalculator } from './calculators/PercentageCalculator';
-import { AgeCalculator } from './calculators/AgeCalculator';
-import { BmiCalculator } from './calculators/BmiCalculator';
-import { LoanCalculator } from './calculators/LoanCalculator';
-import { SimpleInterestCalculator } from './calculators/SimpleInterestCalculator';
-import { CompoundInterestCalculator } from './calculators/CompoundInterestCalculator';
-import { EmiCalculator } from './calculators/EmiCalculator';
-import { GstCalculator } from './calculators/GstCalculator';
-import { DiscountCalculator } from './calculators/DiscountCalculator';
-import { ProfitLossCalculator } from './calculators/ProfitLossCalculator';
-import { UnitConverter } from './calculators/UnitConverter';
-import { TimeDateCalculator } from './calculators/TimeDateCalculator';
-import { SalaryCalculator } from './calculators/SalaryCalculator';
-import { GpaCalculator } from './calculators/GpaCalculator';
-import { PercentageMarksCalculator } from './calculators/PercentageMarksCalculator';
+// Lazy-load all 15 calculator components on demand for ultra-fast initial page load
+const PercentageCalculator = lazy(() => import('./calculators/PercentageCalculator').then(m => ({ default: m.PercentageCalculator })));
+const AgeCalculator = lazy(() => import('./calculators/AgeCalculator').then(m => ({ default: m.AgeCalculator })));
+const BmiCalculator = lazy(() => import('./calculators/BmiCalculator').then(m => ({ default: m.BmiCalculator })));
+const LoanCalculator = lazy(() => import('./calculators/LoanCalculator').then(m => ({ default: m.LoanCalculator })));
+const SimpleInterestCalculator = lazy(() => import('./calculators/SimpleInterestCalculator').then(m => ({ default: m.SimpleInterestCalculator })));
+const CompoundInterestCalculator = lazy(() => import('./calculators/CompoundInterestCalculator').then(m => ({ default: m.CompoundInterestCalculator })));
+const EmiCalculator = lazy(() => import('./calculators/EmiCalculator').then(m => ({ default: m.EmiCalculator })));
+const GstCalculator = lazy(() => import('./calculators/GstCalculator').then(m => ({ default: m.GstCalculator })));
+const DiscountCalculator = lazy(() => import('./calculators/DiscountCalculator').then(m => ({ default: m.DiscountCalculator })));
+const ProfitLossCalculator = lazy(() => import('./calculators/ProfitLossCalculator').then(m => ({ default: m.ProfitLossCalculator })));
+const UnitConverter = lazy(() => import('./calculators/UnitConverter').then(m => ({ default: m.UnitConverter })));
+const TimeDateCalculator = lazy(() => import('./calculators/TimeDateCalculator').then(m => ({ default: m.TimeDateCalculator })));
+const SalaryCalculator = lazy(() => import('./calculators/SalaryCalculator').then(m => ({ default: m.SalaryCalculator })));
+const GpaCalculator = lazy(() => import('./calculators/GpaCalculator').then(m => ({ default: m.GpaCalculator })));
+const PercentageMarksCalculator = lazy(() => import('./calculators/PercentageMarksCalculator').then(m => ({ default: m.PercentageMarksCalculator })));
 
 interface CalculatorPageProps {
   data: CalculatorSEOData;
   onNavigate: (slug: string) => void;
 }
+
+const CalculatorSkeleton = () => (
+  <div className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs animate-pulse space-y-6">
+    <div className="h-6 w-1/3 bg-slate-200 rounded-md"></div>
+    <div className="space-y-3">
+      <div className="h-4 w-full bg-slate-100 rounded-md"></div>
+      <div className="h-4 w-2/3 bg-slate-100 rounded-md"></div>
+    </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+      <div className="h-12 bg-slate-100 rounded-xl"></div>
+      <div className="h-12 bg-slate-100 rounded-xl"></div>
+    </div>
+  </div>
+);
 
 export const CalculatorPage: React.FC<CalculatorPageProps> = ({ data, onNavigate }) => {
   const renderCalculatorComponent = () => {
@@ -107,7 +121,9 @@ export const CalculatorPage: React.FC<CalculatorPageProps> = ({ data, onNavigate
 
       {/* Interactive Tool Area */}
       <section aria-label="Interactive Calculator Tool">
-        {renderCalculatorComponent()}
+        <Suspense fallback={<CalculatorSkeleton />}>
+          {renderCalculatorComponent()}
+        </Suspense>
       </section>
 
       {/* Mid-Page Ad Unit */}

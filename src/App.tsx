@@ -3,19 +3,28 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
-import { SearchModal } from './components/SearchModal';
 import { HomePage } from './components/pages/HomePage';
-import { CalculatorPage } from './components/CalculatorPage';
-import { AboutPage } from './components/pages/AboutPage';
-import { ContactPage } from './components/pages/ContactPage';
-import { PrivacyPolicyPage } from './components/pages/PrivacyPolicyPage';
-import { DisclaimerPage } from './components/pages/DisclaimerPage';
-import { SitemapPage } from './components/pages/SitemapPage';
 import { CALCULATORS_DATA } from './data/calculatorsData';
 import { CalculatorCategory } from './types';
+
+// Lazy-load all non-essential routes to minimize initial JavaScript bundle size
+const CalculatorPage = lazy(() => import('./components/CalculatorPage').then(m => ({ default: m.CalculatorPage })));
+const AboutPage = lazy(() => import('./components/pages/AboutPage').then(m => ({ default: m.AboutPage })));
+const ContactPage = lazy(() => import('./components/pages/ContactPage').then(m => ({ default: m.ContactPage })));
+const PrivacyPolicyPage = lazy(() => import('./components/pages/PrivacyPolicyPage').then(m => ({ default: m.PrivacyPolicyPage })));
+const DisclaimerPage = lazy(() => import('./components/pages/DisclaimerPage').then(m => ({ default: m.DisclaimerPage })));
+const SitemapPage = lazy(() => import('./components/pages/SitemapPage').then(m => ({ default: m.SitemapPage })));
+const SearchModal = lazy(() => import('./components/SearchModal').then(m => ({ default: m.SearchModal })));
+
+const PageLoadingFallback = () => (
+  <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col items-center justify-center space-y-4 min-h-[400px]">
+    <div className="w-8 h-8 border-3 border-emerald-200 border-t-emerald-600 rounded-full animate-spin"></div>
+    <span className="text-xs font-medium text-slate-500">Loading view...</span>
+  </div>
+);
 
 export default function App() {
   // Initialize route from window.location.hash if present (e.g. #gst-calculator)
@@ -130,15 +139,21 @@ export default function App() {
 
       {/* Main Page Body */}
       <main className="flex-1">
-        {renderContent()}
+        <Suspense fallback={<PageLoadingFallback />}>
+          {renderContent()}
+        </Suspense>
       </main>
 
-      {/* Global Search Modal */}
-      <SearchModal
-        isOpen={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
-        onSelect={slug => handleNavigate(slug)}
-      />
+      {/* Global Search Modal (lazy-loaded on demand) */}
+      {isSearchOpen && (
+        <Suspense fallback={null}>
+          <SearchModal
+            isOpen={isSearchOpen}
+            onClose={() => setIsSearchOpen(false)}
+            onSelect={slug => handleNavigate(slug)}
+          />
+        </Suspense>
+      )}
 
       {/* Footer */}
       <Footer onNavigate={handleNavigate} />
