@@ -64,9 +64,27 @@ function aistudioMediaPlugin(): Plugin {
 }
 // LINT.ThenChange(//depot/google3/java/com/google/alkali/boq/makersuite/applet_dev_service/templates/initializers/react_theme/vite.config.ts:aistudio_media_plugin)
 
+const getBase = () => {
+  if (process.env.BASE_PATH) {
+    const p = process.env.BASE_PATH.trim();
+    if (!p) return './';
+    return p.endsWith('/') ? p : `${p}/`;
+  }
+  if (process.env.GITHUB_REPOSITORY) {
+    const repo = process.env.GITHUB_REPOSITORY.split('/')[1];
+    if (repo && repo.toLowerCase().endsWith('.github.io')) {
+      return '/';
+    }
+    if (repo) {
+      return `/${repo}/`;
+    }
+  }
+  return './';
+};
+
 export default defineConfig(() => {
   return {
-    base: './',
+    base: getBase(),
     plugins: [react(), tailwindcss(), aistudioMediaPlugin()],
     resolve: {
       alias: {
